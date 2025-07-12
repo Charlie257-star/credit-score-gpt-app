@@ -85,7 +85,7 @@ if uploaded:
         explanation = shap.Explanation(
             values=shap_vals_for_class[0],
             base_values=explainer.expected_value[class_index],
-            data=instance[0],
+            data=instance.toarray()[0],
             feature_names=feature_names
         )
 
