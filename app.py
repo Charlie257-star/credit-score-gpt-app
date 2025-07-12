@@ -5,7 +5,6 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import openai
-
 st.set_page_config(page_title="Credit Score Classifier", layout="wide")
 st.title("🔍 Credit Score Classifier with SHAP Explainability & GPT Assistant")
 
