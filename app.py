@@ -5,6 +5,7 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import openai
+
 st.set_page_config(page_title="Credit Score Classifier", layout="wide")
 st.title("🔍 Credit Score Classifier with SHAP Explainability & GPT Assistant")
 
@@ -17,7 +18,6 @@ clf = model.named_steps['clf']
 # Sidebar: OpenAI API Key input
 openai_key = st.sidebar.text_input("🔐 Enter your OpenAI API Key", type="password")
 if openai_key:
-    openai.api_key = openai_key
     st.sidebar.success("✅ Key loaded. You can now use the assistant.")
 else:
     st.sidebar.info("🔐 Enter your OpenAI API key to enable the assistant.")
@@ -64,57 +64,52 @@ if uploaded:
     st.dataframe(df.iloc[[row_num]])
 
     try:
-       explainer = shap.Explainer(clf)
+        explainer = shap.Explainer(clf)
         shap_values = explainer(X_transformed[row_num:row_num+1])
+        fig, ax = plt.subplots(figsize=(10, 5))
         shap.plots.waterfall(shap_values[0], show=False)
         st.pyplot(fig)
     except Exception as e:
         st.warning(f"Could not generate waterfall plot: {str(e)}")
 
- st.markdown("""
-ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
+    st.markdown("""
+    ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
 
-🟢 Required: Ensure all columns are present in the upload (even if empty).  
-🟡 Optional fields can be left blank if borrower data is incomplete.
-""") 
+    🟢 Required: Ensure all columns are present in the upload (even if empty).  
+    🟡 Optional fields can be left blank if borrower data is incomplete.
+    """)
 
-  # GPT assistant (only after file upload)
-  # Modern OpenAI client initialization (v1.x+)
-client = openai.OpenAI(api_key=openai_key)
+    # GPT assistant (only if key is provided)
+    if openai_key:
+        client = openai.OpenAI(api_key=openai_key)
+        st.subheader("💬 Ask the Assistant")
+        user_q = st.text_input("Ask a question about this borrower's prediction:")
 
-# Chat section
-if openai_key:
-    st.subheader("💬 Ask the Assistant")
-    user_q = st.text_input("Ask a question about this borrower's prediction:")
+        if user_q:
+            try:
+                data_summary = df.describe().T.to_string()
+                borrower_input = df.iloc[[row_num]].to_string()
 
-    if user_q:
-        try:
-            data_summary = df.describe().T.to_string()
-            borrower_input = df.iloc[[row_num]].to_string()
-
-            prompt = f"""You are a credit risk assistant. Explain this borrower's risk and features.
+                prompt = f"""You are a credit risk assistant. Explain this borrower's risk and features.
 
 Borrower Features:\n{borrower_input}
 Data Summary:\n{data_summary}
 Question: {user_q}
 Answer:"""
 
-            # Send to OpenAI (modern call)
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are a helpful credit risk and ML assistant."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=400
-            )
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "You are a helpful credit risk and ML assistant."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3,
+                    max_tokens=400
+                )
 
-            st.success(response.choices[0].message.content)
+                st.success(response.choices[0].message.content)
 
-        except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
-
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
 else:
     st.info("👆 Upload a borrower file to start.")
-
