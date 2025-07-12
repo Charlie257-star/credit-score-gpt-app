@@ -42,32 +42,70 @@ if uploaded:
     # Download predictions
     st.download_button("📥 Download Results", df.to_csv(index=False), file_name="credit_predictions.csv")
 
-    # SHAP Explainability
+    # SHAP Explainability Section
     st.subheader("🔍 SHAP Explainability")
-
-    # Sample to avoid memory overload
-    sample_size = min(300, X_transformed.shape[0])
-    sample_idx = np.random.choice(X_transformed.shape[0], size=sample_size, replace=False)
-    X_sample = X_transformed[sample_idx]
-    df_sample = df.iloc[sample_idx]
-
     explainer = shap.TreeExplainer(clf)
-    shap_values = explainer.shap_values(X_sample)
 
-    row_num = st.number_input("Select borrower row for explanation (sampled)", 0, sample_size - 1, 0)
-    st.write("Borrower data:")
-    st.dataframe(df_sample.iloc[[row_num]])
+    # ---- Global SHAP Beeswarm Plot ----
+    with st.expander("📊 Global Feature Importance (Beeswarm SHAP)"):
+        st.write("Top features influencing credit score predictions:")
+        sample_size = st.slider("Sample size for SHAP summary", min_value=50, max_value=300, step=50, value=100)
+        sample_idx = np.random.choice(X_transformed.shape[0], size=sample_size, replace=False)
+        X_sample = X_transformed[sample_idx]
 
-    st.markdown("#### 🔎 Why did this borrower get this score?")
-    fig = shap.plots._waterfall.waterfall_legacy(shap_values[row_num], show=False)
-    st.pyplot(fig)
+        try:
+            shap_values = explainer.shap_values(X_sample)
+            fig, ax = plt.subplots(figsize=(10, 5))
+            shap.summary_plot(shap_values, X_sample, show=False, plot_type="dot")
+            st.pyplot(fig)
+        except Exception as e:
+            st.warning(f"Could not render SHAP plot: {str(e)}")
 
-    with st.expander("📊 Global Feature Importance (Sampled)"):
-        st.write("Top factors influencing all predictions (sampled):")
-        shap.summary_plot(shap_values, X_sample, show=False)
-        st.pyplot(bbox_inches='tight')
+    # ---- Individual SHAP Waterfall Plot ----
+    st.subheader("🔎 Individual Prediction Explanation")
+    row_num = st.number_input("Select borrower index to explain", 0, len(df)-1, 0)
+    st.write("Borrower details:")
+    st.dataframe(df.iloc[[row_num]])
+
+    try:
+        shap_single = explainer(X_transformed[row_num:row_num+1])
+        fig, ax = plt.subplots(figsize=(10, 5))
+        shap.plots.waterfall(shap_single[0], show=False)
+        st.pyplot(fig)
+    except Exception as e:
+        st.warning(f"Could not generate waterfall plot: {str(e)}")
+
 else:
-    st.info("👆 Upload a CSV file to start")
+    st.info("👆 Upload a CSV file with borrower data matching the expected structure below.")
+
+with st.expander("📋 Download sample template & see required format"):
+    sample_df = pd.DataFrame(columns=[
+        'Age', 'Annual_Income', 'Monthly_Inhand_Salary', 'Num_Bank_Accounts',
+        'Num_Credit_Card', 'Interest_Rate', 'Num_of_Loan', 'Delay_from_due_date',
+        'Num_of_Delayed_Payment', 'Changed_Credit_Limit', 'Outstanding_Debt',
+        'Credit_Utilization_Ratio', 'Credit_History_Age', 'Total_EMI_per_month',
+        'Amount_invested_monthly', 'Monthly_Balance'
+    ])
+    st.dataframe(sample_df)
+
+    csv = sample_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Download Sample CSV Template",
+        data=csv,
+        file_name='borrower_template.csv',
+        mime='text/csv'
+    )
+
+st.markdown("""
+ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
+
+🟢 Required: Ensure all columns are present in the upload (even if empty).  
+🟡 Optional fields can be left blank if borrower data is incomplete.
+""")
+
+
+
+
 
 
 import openai
@@ -113,3 +151,12 @@ if api_key:
             st.sidebar.error(f"❌ Error: {str(e)}")
 else:
     st.sidebar.info("🔐 Enter your OpenAI API key to enable the assistant.")
+
+with st.sidebar.expander("ℹ️ How to get your OpenAI API key"):
+    st.markdown("""
+    1. Go to [platform.openai.com](https://platform.openai.com)
+    2. Sign in or create a free account
+    3. Navigate to **API Keys**
+    4. Click **Create new secret key**
+    5. Copy the key and paste it above
+    """)
