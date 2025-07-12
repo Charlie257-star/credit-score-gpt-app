@@ -63,18 +63,37 @@ if uploaded:
     st.write("Borrower details:")
     st.dataframe(df.iloc[[row_num]])
 
+   
     try:
-        explainer = shap.Explainer(clf)
+        # Use TreeExplainer for multiclass
+        explainer = shap.TreeExplainer(clf)
         instance = X_transformed[row_num:row_num+1]
-        explanation_all = explainer(instance)
 
-	# Pick the predicted class index
+        # Get SHAP values for all classes
+        shap_values = explainer.shap_values(instance)
+
+        # Get predicted class index for this row
         class_index = preds[row_num]
-        explanation = explanation_all[class_index]
 
+        # Get SHAP values for predicted class
+        shap_vals_for_class = shap_values[class_index]
+
+        # Get feature names (same order as transformed input)
+        feature_names = preprocessor.get_feature_names_out()
+
+        # Create SHAP Explanation manually
+        explanation = shap.Explanation(
+            values=shap_vals_for_class[0],
+            base_values=explainer.expected_value[class_index],
+            data=instance[0],
+            feature_names=feature_names
+        )
+
+        # Bar plot (light and compatible)
         fig, ax = plt.subplots(figsize=(10, 5))
-        shap.plots.bar(explanation[0], show=False)
+        shap.plots.bar(explanation, show=False)
         st.pyplot(fig)
+
     except Exception as e:
         st.warning(f"Could not generate SHAP explanation: {str(e)}")
 
