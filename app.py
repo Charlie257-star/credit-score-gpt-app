@@ -66,7 +66,12 @@ if uploaded:
     try:
         explainer = shap.Explainer(clf)
         instance = X_transformed[row_num:row_num+1]
-        explanation = explainer(instance)
+        explanation_all = explainer(instance)
+
+	# Pick the predicted class index
+        class_index = preds[row_num]
+        explanation = explanation_all[class_index]
+
         fig, ax = plt.subplots(figsize=(10, 5))
         shap.plots.bar(explanation[0], show=False)
         st.pyplot(fig)
