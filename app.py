@@ -65,9 +65,10 @@ if uploaded:
 
     try:
         explainer = shap.Explainer(clf)
-        shap_values = explainer(X_transformed[row_num:row_num+1])
+        instance = X_transformed[row_num:row_num+1]
+        explanation = explainer(instance)  # returns Explanation object
         fig, ax = plt.subplots(figsize=(10, 5))
-        shap.plots.waterfall(shap_values[0], show=False)
+        shap.plots.waterfall(explanation[0], show=False)
         st.pyplot(fig)
     except Exception as e:
         st.warning(f"Could not generate waterfall plot: {str(e)}")
