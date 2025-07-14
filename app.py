@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import openai
 
 st.set_page_config(page_title="Credit Score Classifier", layout="wide")
-st.title("🔍 Credit Score Classifier with SHAP Explainability & GPT Assistant")
+st.title("🔍 Credit Score Classifier with GPT Assistant")
 
 # Load model and label encoder
 model = joblib.load("credit_model_tuned.pkl")
