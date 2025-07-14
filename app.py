@@ -72,21 +72,23 @@ if uploaded:
         explainer = shap.TreeExplainer(clf)
         shap_values = explainer.shap_values(instance)
         class_index = preds[row_num]
-        shap_vals_for_class = shap_values[class_index]
 
-        feature_names = preprocessor.get_feature_names_out()
-
-        # Safe base_value handling
-        if isinstance(explainer.expected_value, (list, np.ndarray)):
+        # Robust handling
+        if isinstance(shap_values, list) and len(shap_values) > class_index:
+            shap_vals_for_class = shap_values[class_index]
             base_value = explainer.expected_value[class_index]
         else:
-            base_value = explainer.expected_value
+            shap_vals_for_class = shap_values
+            base_value = explainer.expected_value if not isinstance(explainer.expected_value, list) else explainer.expected_value[0]
+
+        feature_names = preprocessor.get_feature_names_out()
 
         explanation = shap.Explanation(
             values=shap_vals_for_class[0],
             base_values=base_value,
             data=instance.toarray()[0],
             feature_names=feature_names
+    
         )
 
         fig, ax = plt.subplots(figsize=(10, 5))
