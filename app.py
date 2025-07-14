@@ -52,10 +52,20 @@ if uploaded:
     df["Predicted_Score"] = label_encoder.inverse_transform(preds)
     df["Confidence"] = np.max(probs, axis=1)
 
-    st.subheader("📈 Prediction Results")
-    st.dataframe(df[["Predicted_Score", "Confidence"]].join(df.drop(columns=["Predicted_Score", "Confidence"])))
+    df["Confidence_Flag"] = df["Confidence"].apply(
+        lambda x: "⚠️ Low confidence" if x < 0.6 else ""
+    )
 
-   
+
+    st.subheader("📈 Prediction Results")
+    styled_df = df[["Predicted_Score", "Confidence", "Confidence_Flag"]].style.applymap(
+    lambda val: "color: red;" if val == "⚠️ Low confidence" else ""
+    , subset=["Confidence_Flag"]
+    )
+
+    st.dataframe(styled_df)
+    
+    
 
     st.markdown("""
     ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
@@ -68,6 +78,11 @@ if uploaded:
     row_num = st.number_input("Select borrower index to explain", 0, len(df) - 1, 0)
     st.write("Borrower details:")
     st.dataframe(df.iloc[[row_num]])
+
+    st.markdown("""
+    🔍 **Note:** Predictions marked with ⚠️ indicate the model was not strongly confident.
+         These cases may require further review or additional data.
+    """)
 
 
     # GPT assistant (only if key is provided)
