@@ -65,34 +65,35 @@ if uploaded:
 
    
     try:
-        # Use TreeExplainer for multiclass
-        explainer = shap.TreeExplainer(clf)
         instance = X_transformed[row_num:row_num+1]
+        if instance.nnz == 0:
+            raise ValueError("Selected row has no data after preprocessing.")
 
-        # Get SHAP values for all classes
+        explainer = shap.TreeExplainer(clf)
         shap_values = explainer.shap_values(instance)
-
-        # Get predicted class index for this row
         class_index = preds[row_num]
-
-        # Get SHAP values for predicted class
         shap_vals_for_class = shap_values[class_index]
 
-        # Get feature names (same order as transformed input)
         feature_names = preprocessor.get_feature_names_out()
 
-        # Create SHAP Explanation manually
+        # Safe base_value handling
+        if isinstance(explainer.expected_value, (list, np.ndarray)):
+            base_value = explainer.expected_value[class_index]
+        else:
+            base_value = explainer.expected_value
+
         explanation = shap.Explanation(
             values=shap_vals_for_class[0],
-            base_values=explainer.expected_value[class_index],
+            base_values=base_value,
             data=instance.toarray()[0],
             feature_names=feature_names
         )
 
-        # Bar plot (light and compatible)
         fig, ax = plt.subplots(figsize=(10, 5))
         shap.plots.bar(explanation, show=False)
         st.pyplot(fig)
+
+
 
     except Exception as e:
         st.warning(f"Could not generate SHAP explanation: {str(e)}")
