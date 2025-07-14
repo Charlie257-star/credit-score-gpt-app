@@ -40,6 +40,26 @@ st.markdown("""
     👇 If unsure, [download the CSV template](#) below to use as a guide.
     """)
 
+# 📥 Download pre-filled example CSV for testing
+
+st.markdown("""
+### 👇 Don't want to upload your own file?
+
+Download and upload a ready-to-use prefilled example file to test the app instantly:
+""")
+
+# Load the test.csv file 
+sample_csv_path = "test.csv"  
+
+with open(sample_csv_path, "rb") as f:
+    st.download_button(
+        label="⬇️ Download Example Borrower Data",
+        data=f,
+        file_name="example_borrower_data.csv",
+        mime="text/csv"
+    )
+
+
 # Define template columns (match exactly what model expects)
 template_df = pd.DataFrame(columns=[
     'ID', 'Customer_ID', 'Month', 'Name', 'Age', 'SSN', 'Occupation',
