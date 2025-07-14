@@ -41,26 +41,22 @@ st.markdown("""
     """)
 
 # Define template columns (match exactly what model expects)
-template_df = pd.DataFrame({
-    "Annual_Income": [50000],
-    "Num_of_Loan": [2],
-    "Num_Bank_Accounts": [3],
-    "Num_Credit_Card": [1],
-    "Delay_from_due_date": [10],
-    "Credit_History_Age": [12],
-    "Outstanding_Debt": [15000],
-    "Monthly_Balance": [5000],
-    "Payment_Behaviour": ["High_spent_Small_value_payments"],
-    "EMI": [1200],
-    # Add all expected model features here
-})
+template_df = pd.DataFrame(columns=[
+    'ID', 'Customer_ID', 'Month', 'Name', 'Age', 'SSN', 'Occupation',
+    'Annual_Income', 'Monthly_Inhand_Salary', 'Num_Bank_Accounts',
+    'Num_Credit_Card', 'Interest_Rate', 'Num_of_Loan', 'Type_of_Loan',
+    'Delay_from_due_date', 'Num_of_Delayed_Payment', 'Changed_Credit_Limit',
+    'Num_Credit_Inquiries', 'Credit_Mix', 'Outstanding_Debt',
+    'Credit_Utilization_Ratio', 'Credit_History_Age',
+    'Payment_of_Min_Amount', 'Total_EMI_per_month', 'Amount_invested_monthly',
+    'Payment_Behaviour', 'Monthly_Balance'
+])
 
 # Download button + preview
 with st.expander("📥 Download Sample CSV Template"):
-    st.dataframe(template_df)
+    st.dataframe(template_df.head(1))  # Just show header
     csv = template_df.to_csv(index=False).encode("utf-8")
-    st.download_button("⬇️ Download CSV Template", csv, file_name="credit_score_template.csv", mime="text/csv")
-
+    st.download_button("⬇️ Download Full CSV Template", csv, file_name="credit_score_template.csv", mime="text/csv")
 uploaded = st.file_uploader("📁 Upload your borrower CSV file", type=["csv"])
 
 if uploaded:
