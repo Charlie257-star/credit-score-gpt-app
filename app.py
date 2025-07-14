@@ -58,48 +58,9 @@ if uploaded:
     st.download_button("📥 Download Results", df.to_csv(index=False), file_name="credit_predictions.csv")
 
     # SHAP Explainability – Individual only
-    st.subheader("🔎 Individual SHAP Explanation")
-    row_num = st.number_input("Select borrower index to explain", 0, len(df) - 1, 0)
-    st.write("Borrower details:")
-    st.dataframe(df.iloc[[row_num]])
+    # st.subheader("🔎 Individual SHAP Explanation")-removed for stability
 
    
-    try:
-        # Extract one row for SHAP explanation
-        instance = X_transformed[row_num:row_num+1]
-        if instance.nnz == 0:
-            raise ValueError("Selected row has no data after preprocessing.")
-
-        explainer = shap.TreeExplainer(clf)
-        shap_values = explainer.shap_values(instance)
-
-        feature_names = preprocessor.get_feature_names_out()
-
-        # Check if it's multiclass output
-        if isinstance(shap_values, list):
-            class_index = preds[row_num]
-            shap_vals_for_class = np.array(shap_values[class_index])
-            base_value = explainer.expected_value[class_index]
-        else:
-            shap_vals_for_class = np.array(shap_values)
-            base_value = explainer.expected_value
-
-        explanation = shap.Explanation(
-            values=shap_vals_for_class[0],
-            base_values=base_value,
-            data=instance.toarray()[0],
-            feature_names=feature_names
-    
-        )
-
-        fig, ax = plt.subplots(figsize=(10, 5))
-        shap.plots.bar(explanation, show=False)
-        st.pyplot(fig)
-
-
-
-    except Exception as e:
-        st.warning(f"Could not generate SHAP explanation: {str(e)}")
 
     st.markdown("""
     ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
