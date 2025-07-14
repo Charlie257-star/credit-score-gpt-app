@@ -31,7 +31,37 @@ else:
         """)
 
 # File upload section
-uploaded = st.file_uploader("📤 Upload borrower data (CSV)", type=["csv"])
+
+st.markdown("""
+    ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
+
+    🟢 Required: Ensure all columns are present in the upload (even if empty).  
+    🟡 Optional fields can be left blank if borrower data is incomplete.
+    👇 If unsure, [download the CSV template](#) below to use as a guide.
+    """)
+
+# Define template columns (match exactly what model expects)
+template_df = pd.DataFrame({
+    "Annual_Income": [50000],
+    "Num_of_Loan": [2],
+    "Num_Bank_Accounts": [3],
+    "Num_Credit_Card": [1],
+    "Delay_from_due_date": [10],
+    "Credit_History_Age": [12],
+    "Outstanding_Debt": [15000],
+    "Monthly_Balance": [5000],
+    "Payment_Behaviour": ["High_spent_Small_value_payments"],
+    "EMI": [1200],
+    # Add all expected model features here
+})
+
+# Download button + preview
+with st.expander("📥 Download Sample CSV Template"):
+    st.dataframe(template_df)
+    csv = template_df.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Download CSV Template", csv, file_name="credit_score_template.csv", mime="text/csv")
+
+uploaded = st.file_uploader("📁 Upload your borrower CSV file", type=["csv"])
 
 if uploaded:
     df = pd.read_csv(uploaded)
@@ -67,12 +97,7 @@ if uploaded:
     
     
 
-    st.markdown("""
-    ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
-
-    🟢 Required: Ensure all columns are present in the upload (even if empty).  
-    🟡 Optional fields can be left blank if borrower data is incomplete.
-    """)
+    
 
     st.subheader("🧍 Select Borrower for Explanation")
     row_num = st.number_input("Select borrower index to explain", 0, len(df) - 1, 0)
