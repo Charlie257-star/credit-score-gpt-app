@@ -65,25 +65,23 @@ if uploaded:
 
    
     try:
-        # Grab one instance to explain
+        # Extract one row for SHAP explanation
         instance = X_transformed[row_num:row_num+1]
         if instance.nnz == 0:
             raise ValueError("Selected row has no data after preprocessing.")
 
-        # Use TreeExplainer
         explainer = shap.TreeExplainer(clf)
         shap_values = explainer.shap_values(instance)
 
-        # Get feature names from preprocessor
         feature_names = preprocessor.get_feature_names_out()
 
-        # Check if shap_values is a list (multiclass)
+        # Check if it's multiclass output
         if isinstance(shap_values, list):
             class_index = preds[row_num]
-            shap_vals_for_class = shap_values[class_index]
+            shap_vals_for_class = np.array(shap_values[class_index])
             base_value = explainer.expected_value[class_index]
         else:
-            shap_vals_for_class = shap_values
+            shap_vals_for_class = np.array(shap_values)
             base_value = explainer.expected_value
 
         explanation = shap.Explanation(
