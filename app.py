@@ -45,6 +45,7 @@ if uploaded:
     # Transform features
     X_transformed = preprocessor.transform(df)
 
+   
     # Predict
     preds = clf.predict(X_transformed)
     probs = clf.predict_proba(X_transformed)
@@ -54,13 +55,13 @@ if uploaded:
     st.subheader("📈 Prediction Results")
     st.dataframe(df[["Predicted_Score", "Confidence"]].join(df.drop(columns=["Predicted_Score", "Confidence"])))
 
-    # Download button
-    st.download_button("📥 Download Results", df.to_csv(index=False), file_name="credit_predictions.csv")
+    # Feature Importance Plot (new)
+    from xgboost import plot_importance
 
-    # SHAP Explainability – Individual only
-    # st.subheader("🔎 Individual SHAP Explanation")-removed for stability
-
-   
+    st.subheader("📊 Feature Importance (XGBoost Built-In)")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    plot_importance(clf, ax=ax, importance_type='gain', show_values=False)
+    st.pyplot(fig)
 
     st.markdown("""
     ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
@@ -68,6 +69,12 @@ if uploaded:
     🟢 Required: Ensure all columns are present in the upload (even if empty).  
     🟡 Optional fields can be left blank if borrower data is incomplete.
     """)
+
+    st.subheader("🧍 Select Borrower for Explanation")
+    row_num = st.number_input("Select borrower index to explain", 0, len(df) - 1, 0)
+    st.write("Borrower details:")
+    st.dataframe(df.iloc[[row_num]])
+
 
     # GPT assistant (only if key is provided)
     if openai_key:
