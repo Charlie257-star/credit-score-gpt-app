@@ -55,13 +55,7 @@ if uploaded:
     st.subheader("📈 Prediction Results")
     st.dataframe(df[["Predicted_Score", "Confidence"]].join(df.drop(columns=["Predicted_Score", "Confidence"])))
 
-    # Feature Importance Plot (new)
-    from xgboost import plot_importance
-
-    st.subheader("📊 Feature Importance (XGBoost Built-In)")
-    fig, ax = plt.subplots(figsize=(10, 5))
-    plot_importance(clf, ax=ax, importance_type='gain', show_values=False)
-    st.pyplot(fig)
+   
 
     st.markdown("""
     ℹ️ **Note:** You may leave non-critical fields blank — the app will automatically fill missing values using the trained model’s preprocessing logic.
