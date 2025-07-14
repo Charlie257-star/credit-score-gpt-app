@@ -1,7 +1,7 @@
 
-# Credit Score Prediction App with SHAP & GPT Assistant
+# Credit Score Prediction App with GPT Assistant
 
-This is an interactive Streamlit app that predicts borrower credit scores (Good, Standard, Poor) using a tuned XGBoost model. It includes global and individual SHAP explainability, and a built-in GPT-powered assistant to help interpret results, if need be.
+This is an interactive Streamlit app that predicts borrower credit scores (Good, Standard, Poor) using a tuned XGBoost model. It includes a built-in GPT-powered assistant to help interpret results, if need be.
 
 ## 🚀 Features
 
@@ -22,8 +22,7 @@ Live demo: https://credit-score-gpt-app-xkdoanmqmu2kzc4wanypwn.streamlit.app/
 1. Upload borrower data using the CSV uploader
 2. Or [download the sample template](#) and fill in your data
 3. View credit score predictions and confidence levels
-4. Explore feature importance with SHAP plots
-5. Ask the built-in assistant to explain results
+4. Ask the built-in assistant to explain results
 
 ---
 
@@ -40,14 +39,14 @@ To use the GPT assistant:
 
 ---
 
-##  Built With
+##  🛠 Tech Stack
+Python, XGBoost, scikit-learn
 
-- Python
-- pandas
-- scikit-learn
-- XGBoost
-- SHAP
-- Streamlit
+Streamlit
+
+OpenAI API (GPT-4 / GPT-3.5-turbo)
+
+Pandas, NumPy, Matplotlib
 
 ---
 ## 📥 Run Locally
@@ -58,6 +57,7 @@ cd credit-score-gpt-app
 pip install -r requirements.txt
 streamlit run app.py
 
-##  Contact
-
-Charles Otieno – www.linkedin.com/in/charles-otieno-903921227 
+##  🙋‍♂️ Author
+Charles Otieno
+📍 Data Scientist | Explainable AI | LLM Integrations
+    www.linkedin.com/in/charles-otieno-903921227 
