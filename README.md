@@ -13,7 +13,7 @@ This is an interactive Streamlit app that predicts borrower credit scores (Good,
 - 🧱 Handles missing values in input data gracefully
 
 
-Live demo: https://credit-score-gpt-app-mlcpsvratjyjsknwrff3c2.streamlit.app/
+Live demo: https://credit-score-gpt-app-9im2hvevshpxswhs7vapp3t.streamlit.app/
 
 ---
 
