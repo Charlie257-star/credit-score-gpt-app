@@ -132,12 +132,12 @@ if uploaded:
         st.subheader("💬 Ask the Assistant")
         user_q = st.text_input("Ask a question about this borrower's prediction:")
 
-        if user_q:
-            try:
-                borrower_input = df.iloc[[row_num]].to_string()
-                data_summary = df.describe().T.to_string()
+if user_q:
+    try:
+        borrower_input = df.iloc[[row_num]].to_string()
+        data_summary = df.describe().T.to_string()
 
-                prompt = f"""You are a credit risk assistant. Explain this borrower's risk and features.
+        prompt = f"""You are a credit risk assistant. Explain this borrower's risk and features.
 
 Borrower Features:\n{borrower_input}
 Data Summary:\n{data_summary}
