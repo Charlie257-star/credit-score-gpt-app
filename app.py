@@ -134,8 +134,8 @@ if uploaded:
 
         if user_q:
             try:
-                data_summary = df.describe().T.to_string()
                 borrower_input = df.iloc[[row_num]].to_string()
+                data_summary = df.describe().T.to_string()
 
                 prompt = f"""You are a credit risk assistant. Explain this borrower's risk and features.
 
@@ -144,19 +144,24 @@ Data Summary:\n{data_summary}
 Question: {user_q}
 Answer:"""
 
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "You are a helpful credit risk and ML assistant."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.3,
-                    max_tokens=400
-                )
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful credit risk and ML assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=400
+        )
 
-                st.success(response.choices[0].message.content)
+        st.success(response.choices[0].message.content)
 
-            except Exception as e:
-                st.error(f"❌ Error: {str(e)}")
+    except openai.RateLimitError:
+        st.error("🚫 Quota exceeded. Please check your OpenAI account billing or try again later.")
+    except openai.AuthenticationError:
+        st.error("🔐 Invalid API key. Please double-check your key and try again.")
+    except Exception as e:
+        st.error(f"❌ Unexpected error: {str(e)}")
+
 else:
     st.info("👆 Upload a borrower file to start.")
